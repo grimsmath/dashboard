@@ -1,0 +1,71 @@
+﻿<a id="patron"></a>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span4 well">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr><td colspan="2"><strong>Patron Counter Data</strong></td></tr>
+                </thead>
+                <tr>
+                    <td class="field-label">Year-to-Date</td>
+                    <td class="field-value"><div id="patron-ytd" class="snapshot-label"></div></td>
+                </tr>
+                <tr>
+                    <td class="field-label">Month-to-Date</td>
+                    <td class="field-value"><div id="patron-mtd" class="snapshot-label"></div></td>
+                </tr>
+                <tr>
+                    <td class="field-label">Week-to-Date</td>
+                    <td class="field-value"><div id="patron-wtd" class="snapshot-label"></div></td>
+                </tr>
+                <tr class="last">
+                    <td class="field-label">Today's</td>
+                    <td class="field-value"><div id="patron-today" class="snapshot-label"></div></td>
+                </tr>
+                <tr class="last">
+                    <td class="field-label">Yesterday's</td>
+                    <td class="field-value"><div id="patron-yesterday" class="snapshot-label"></div></td>
+                </tr>
+                <tr class="last">
+                    <td class="field-label">Same Day Last Year</td>
+                    <td class="field-value"><div id="patron-sdly" class="snapshot-label"></div></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="span4 well">
+            <div class="tab-pane active" id="chart-patronByYear"></div>
+        </div>
+
+        <div class="span4 well">
+            <div class="tab-pane active" id="chart-patronCurrentWeek"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Patron Snapshot Data
+        $.ajax({
+            url: '@Url.Content("~/Patron/PatronCountSnapshot")',
+            dataType: "json",
+            success: function (jsonData) {
+                $('#patron-ytd').html(LibraryUtil.addCommas(jsonData.byYear.Data.model[0].PatronCount));
+                $('#patron-mtd').html(LibraryUtil.addCommas(jsonData.byMonth.Data.model[0].PatronCount));
+                $('#patron-wtd').html(LibraryUtil.addCommas(jsonData.byWeek.Data.model[0].PatronCount));
+                $('#patron-today').html(LibraryUtil.addCommas(jsonData.byDay.Data.model[0].PatronCount));
+                $('#patron-yesterday').html(LibraryUtil.addCommas(jsonData.byYesterday.Data.model[0].PatronCount));
+                $('#patron-sdly').html(LibraryUtil.addCommas(jsonData.lastYear.Data.model[0].PatronCount));
+            }
+        });
+
+        // Patron Graphs
+    	LibraryCharts.patronCountByYear(
+			'chart-patronByYear',
+			'@Url.Content("~/Patron/PatronCountByYear")');
+
+    	LibraryCharts.patronCountLast7(
+			'chart-patronCurrentWeek',
+			'@Url.Content("~/Patron/PatronCountCurrentWeek")');
+    });
+</script>

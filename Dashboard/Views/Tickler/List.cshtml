@@ -1,0 +1,144 @@
+﻿@{
+    ViewBag.Title = "Tickler Entries List";
+	ViewBag.Breadcrumb = "<a href=\"/\">Tickler Home</a>";
+	ViewBag.ActiveNav = "ticklerNavList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="tab-pane" id="stats">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span12">
+				<div class="btn-toolbar">
+					<div class="btn-group">
+						<a id="addTicklerButton" class="btn"><i class="icon-plus"></i>&nbsp;Add Tickler</a>
+						<a id="editTicklerButton" class="btn"><i class="icon-edit"></i>&nbsp;Edit Tickler</a>
+					</div>
+					<div class="btn-group">
+						<button id="removeTicklerButton" class="btn"><i class="icon-remove"></i>&nbsp;Remove Tickler</button>
+					</div>
+				</div>
+				<div class="alert hide"></div>
+				<table id="gridTickler" class="table table-striped table-bordered">
+					<thead>
+						<tr>
+							<th>ID</th>
+                            <th>Year</th>
+                            <th>Month</th>
+							<th>Last Name</th>
+							<th>First Name</th>
+							<th>ActivityType</th>
+							<th>SubLibrary1</th>
+							<th>SubLibrary2</th>
+							<th>TitleCount</th>
+							<th>VolumeCount</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+					<tfoot>
+						<tr>
+							<th>ID</th>
+                            <th>Year</th>
+                            <th>Month</th>
+							<th>Last Name</th>
+							<th>First Name</th>
+							<th>ActivityType</th>
+							<th>SubLibrary1</th>
+							<th>SubLibrary2</th>
+							<th>TitleCount</th>
+							<th>VolumeCount</th>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modalStatDetails" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="modalStatDetails" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3>Statistics Details</h3>
+	</div>
+	<div class="modal-body">
+		@model Dashboard.ViewModels.TicklerViewModel
+		@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "formTicklerDetails", @class = "form-horizontal" }))
+		{
+			@Html.AntiForgeryToken() 
+			@Html.ValidationSummary(true)
+			@Html.Hidden("inputMode")
+
+			<div class="control-group">
+				<label class="control-label" for="inputStatYear">Year</label>
+				<div class="controls">
+					@Html.DropDownListFor(r => r.Year, (IEnumerable<SelectListItem>) @ViewBag.Years, new { @class = "required" })
+				</div>
+			</div>
+      
+      		<div class="control-group">
+				<label class="control-label" for="Month">Month</label>
+				<div class="controls">
+					@Html.DropDownListFor(r => r.Month, (IEnumerable<SelectListItem>) @ViewBag.Months, new { @class = "required" })
+				</div>
+			</div>
+      
+       		<div class="control-group">
+				<label class="control-label" for="Lastname">Last Name</label>
+				<div class="controls">e
+					@Html.DropDownListFor(r => r.Lastname, (IEnumerable<SelectListItem>)@ViewBag.Databases, new { @class = "required" })
+				</div>
+			</div>
+      
+       		<div class="control-group">
+				<label class="control-label" for="Firstname">First Name</label>
+				<div class="controls">
+					@Html.DropDownListFor(r => r.Firstname, (IEnumerable<SelectListItem>)@ViewBag.Databases, new { @class = "required" })
+				</div>
+			</div>
+      
+       		<div class="control-group">
+				<label class="control-label" for="ActivityType">Activity Type</label>
+				<div class="controls">
+					@Html.HiddenFor(r => r.ActivityTypeID)
+					@Html.DropDownListFor(r => r.ActivityType, (IEnumerable<SelectListItem>)@ViewBag.Databases, new { @class = "required" })
+				</div>
+			</div>
+      
+      
+       		<div class="control-group">
+				<label class="control-label" for="SubLibrary1Name">Sub Library 1</label>
+				<div class="controls">
+					@Html.HiddenFor(r => r.SubLibrary1)
+					@Html.DropDownListFor(r => r.SubLibrary1Name, (IEnumerable<SelectListItem>)@ViewBag.Databases, new { @class = "required" })
+				</div>
+			</div>
+
+       		<div class="control-group">
+				<label class="control-label" for="SubLibrary2Name">Sub Library 2</label>
+				<div class="controls">
+					@Html.HiddenFor(r => r.SubLibrary2)
+					@Html.DropDownListFor(r => r.SubLibrary2Name, (IEnumerable<SelectListItem>)@ViewBag.Databases)
+				</div>
+			</div>
+                  
+      		<div class="control-group">
+				<label class="control-label" for="TitleCount">Title Count</label>
+				<div class="controls">
+					@Html.TextBoxFor(r => r.TitleCount, "", new { placeholder = "Number of titles..." })
+				</div>
+			</div>
+
+       		<div class="control-group">
+				<label class="control-label" for="TitleCount">Volume Count</label>
+				<div class="controls">
+					@Html.TextBoxFor(r => r.VolumeCount, "", new { placeholder = "Number of volumes..." })
+				</div>
+			</div>
+		}
+	</div>
+	<div class="modal-footer">
+		<a href="#" id="closeStatDlg" class="btn" aria-hidden="true">Close</a>
+		<a href="#" id="saveStatDlg" class="btn btn-primary">Save</a>
+	</div>
+</div>

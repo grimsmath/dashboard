@@ -1,0 +1,8 @@
+﻿@{
+    ViewBag.Title = "EResources Overview";
+    ViewBag.Breadcrumb = "<a href=\"/\">Dashboard Home</a>";
+	ViewBag.ActiveNav = "eresNavHome";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("_TopNav", (Object) ViewBag.ActiveNav)

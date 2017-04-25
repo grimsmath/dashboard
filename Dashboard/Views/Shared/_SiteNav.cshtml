@@ -1,0 +1,98 @@
+﻿<div id="navigator">
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container-fluid">
+				<a class="brand" href="/">Library Dashboard</a>
+				<div class="nav-collapse collapse">
+					<ul class="nav">
+						<li><a href="~/"><i class="icon-home icon-white"></i>&nbsp;Home</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<i class="icon-book icon-white"></i>&nbsp;
+                                    Tech Services&nbsp;<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+                                <li><a href="~/Tickler"><i class="icon-tasks"></i>&nbsp;Tickler Overview</a></li>
+								<li><a href="#" id="openTickler">
+									<i class="icon-pencil"></i>&nbsp;Tickler Stats Entry</a></li>
+								<li class="divider"></li>
+								<li><a href="~/EResources"><i class="icon-briefcase"></i>&nbsp;EResources</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<i class="icon-barcode icon-white"></i>&nbsp;
+                                    Access Services&nbsp;<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="~/Time">Time Tracker</a></li>
+								<li><a href="~/Scheduler">Desk Scheduler</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<i class="icon-search icon-white"></i>&nbsp;
+                                    Reference&nbsp;<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="#">Application 1</a></li>
+								<li><a href="#">Application 2</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<i class="icon-camera icon-white"></i>&nbsp;
+                                    Periodicals&nbsp;<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="#">Application 1</a></li>
+								<li><a href="#">Application 2</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<i class="icon-lock icon-white"></i>&nbsp;
+                                    Administration&nbsp;<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="#">System Status</a></li>
+								<li class="divider"></li>
+								<li><a href="#">User Management</a></li>
+								<li><a href="#">System Configuration</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<div class="nav-collapse collapse">
+					<ul class="nav pull-right">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<i class="icon-user icon-white"></i>&nbsp;
+                                    Account&nbsp;<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								@if (! WebSecurity.IsAuthenticated)
+								{
+									<li>@Html.ActionLink("Login", "Login", "Account")</li>
+								}
+								else
+								{
+									<li>@Html.ActionLink("Logout", "LogOff", "Account")</li>
+								}
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+    $(function () {          
+        $('#openTickler').click(function () {
+			var wndConfig = "height=700, width=1000, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, directories=no, status=no";
+			window.open('@Url.Content("~/Tickler/Create")', 'TS Statistics Entry', config = wndConfig);
+		});
+	});
+</script>

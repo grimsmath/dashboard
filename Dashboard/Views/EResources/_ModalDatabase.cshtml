@@ -1,0 +1,129 @@
+﻿@model Dashboard.ViewModels.EResDatabaseViewModel
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "formDbDetails", @class = "form-horizontal" }))
+{
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3>Database Details</h3>
+	</div>
+	<div class="modal-body">
+		@Html.AntiForgeryToken() 
+		@Html.ValidationSummary(true)
+
+		@Html.Hidden("inputMode")
+		@Html.HiddenFor(r => r.DatabaseID)
+
+        @Html.FormLineTextBoxFor(r => r.DatabaseName, true)
+        @Html.FormLineDropDownListFor(r => r.VendorID, (IEnumerable<SelectListItem>)@ViewBag.Vendors)
+        @Html.FormLineDropDownListFor(r => r.DatabaseType, (IEnumerable<SelectListItem>)@ViewBag.DatabaseTypes)
+		@Html.FormLineDropDownListFor(r => r.FundingSource, (IEnumerable<SelectListItem>)@ViewBag.FundingSourceTypes)
+	</div>
+	<div class="modal-footer">
+		<a href="#" id="CancelButton" class="btn" aria-hidden="true">Close</a>
+		<a href="#" id="SaveButton" class="btn btn-primary">Save</a>
+	</div>
+}
+
+<script type="text/javascript">
+    $(function () {
+        /* =======================================================================
+         * Page variables
+         */
+        var aaDataDb = null;
+
+        /* =======================================================================
+         * Modal event handlers
+         */
+		modalDb.on('show', function () {
+		    var mode = $('#inputMode').val();
+
+		    if (mode == "add") {
+		        resetDbModal();
+		    } else {
+		        loadDbModal();
+		    }
+		});
+
+		modalDb.on('shown', function () {
+		    $('#formDbDetails #inputDbName').focus();
+		});
+
+		modalDb.on('hidden', function () {
+		    resetDbModal();
+		});
+
+        /* =======================================================================
+         * Form Event Handlers
+         */
+		$('#formDbDetails').keypress(function (e) {
+		    if (e.which == 13) {
+		        saveDatabase();
+		    }
+		});
+
+        /* =======================================================================
+         * Button event handlers
+         */
+		$('#SaveButton').click(function () {
+		    saveDatabase();
+		});
+
+		$('#CancelButton').click(function () {
+		    modalDb.modal('hide');
+		});
+
+        /* =======================================================================
+         * Methods called by handlers
+         */
+		function resetDbModal() {
+		    if ($('#formDbDetails') != null) {
+		        $('#formDbDetails #DatabaseID').val("");
+		        $('#DatabaseName').val("");
+		        $('#DatabaseCost').val("");
+		        $('#VendorID').val($(this).prop('defaultSelected'));
+		        $('#DatabaseType').val($(this).prop('defaultSelected'));
+		        $('#inputDbFundSource').val($(this).prop('defaultSelected'));
+		    }
+		}
+
+		function loadDbModal() {
+		    if (aaDataDb != null) {
+		        $('#formDbDetails #DatabaseID').val(aaDataDb.DatabaseID);
+		        $('#DatabaseName').val(aaDataDb.DatabaseName);
+		        $('#DatabaseCost').val(aaDataDb.DatabaseCost);
+		        $('#VendorID').val(aaDataDb.VendorID).attr('selected', true);
+		        $('#DatabaseType').val(aaDataDb.DatabaseType).attr('selected', true);
+		        $('#FundingSource').val(aaDataDb.FundingSource).attr('selected', true);
+		    }
+		}
+
+		function resetDbDropDownList(data) {
+		    $("#inputDbName").empty();
+
+		    $.each(data.SelectList, function (object) {
+		        $("#inputDbName")
+					.append($('<option></option>', { value: this.Value })
+					.text(this.Text));
+		    });
+		}
+
+		function saveDatabase() {
+		    var formData = $('#formDbDetails').serialize();
+		    var mode = $('#inputMode').val();
+		    var urlPath = (mode == "add") 
+                ? '@Url.Content("~/EResources/CreateDatabase")'
+                : '@Url.Content("~/EResources/UpdateDatabase")';
+
+            $.ajax({
+                type: "POST",
+                url: urlPath,
+                data: formData,
+                success: function (data) {
+                    if (data.Message == "success") {
+                        // Reload the Databases Table
+
+                    }
+                }
+            });
+        };
+    });
+</script>

@@ -1,0 +1,43 @@
+﻿<a id="discovery"></a>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span4 well">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr><td colspan="2"><strong>Electronic Discovery</strong></td></tr>
+                </thead>
+                <tr>
+                    <td class="field-label">Year-to-Date Count</td>
+                    <td class="field-value"><div id="eds-ytd" class="snapshot-label"></div></td>
+                </tr>
+                <tr>
+                    <td class="field-label">Month-to-Date Count</td>
+                    <td class="field-value"><div id="eds-mtd" class="snapshot-label"></div></td>
+                </tr>
+                <tr>
+                    <td class="field-label">Week-to-Date Count</td>
+                    <td class="field-value"><div id="eds-wtd" class="snapshot-label"></div></td>
+                </tr>
+                <tr>
+                    <td class="field-label">Today's Count</td>
+                    <td class="field-value"><div id="eds-today" class="snapshot-label"></div></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="span4 well">
+            <div class="tab-pane active" id="chart-edsSearches"></div>
+        </div>
+
+        <div class="span4 well">
+            <div class="tab-pane active" id="chart-edsDownloads"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        //LibraryCharts.top10fulltextdownloads('chart-edsDownloads', '@Url.Content("~/Api/TopFullTextDownloadsByVendor")');
+        //LibraryCharts.top10journalsearches('chart-edsSearches', '@Url.Content("~/Api/TopSearchedDatabasesByVendor")');
+    });
+</script>

@@ -1,0 +1,32 @@
+﻿@{
+    // Just some comments    
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title | Thomas G. Carpenter Library | University of North Florida</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="David King, Jr.">
+
+	@Styles.Render(
+		"~/Content/css")
+
+	@Scripts.Render(
+		"~/bundles/jquery",
+		"~/bundles/jquery-plugins",
+		"~/bundles/library")
+</head>
+<body>
+    <div id="body">
+        <div class="container">
+            <div class="row">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+	@Scripts.Render("~/bundles/bootstrap")
+</body>
+</html>

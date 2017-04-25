@@ -1,0 +1,35 @@
+﻿@{
+    ViewBag.Title = "Dashboard Home";
+    ViewBag.Breadcrumb = "<a href=\"/\">Dashboard Home</a>";
+    ViewBag.ActiveNav = "navHome";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="subnav">
+            <ul class="nav nav-pills">
+                <li><a href="#patron">Patron Counter</a></li>
+                <li><a href="#lab">Lab Usage</a></li>
+                <li><a href="#discovery">Electronic Discovery</a></li>
+                <li><a href="#libanswers">LibAnswers</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<br />
+
+@Html.Partial("partials/_DashPatronCounter")
+
+<br />
+
+@Html.Partial("partials/_DashLabUsage")
+
+<br />
+
+@*@Html.Partial("partials/_DashDiscovery")*@
+
+<br />
+
+@*@Html.Partial("partials/_DashLibAnswers")*@

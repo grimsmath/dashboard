@@ -1,0 +1,319 @@
+﻿@{
+    ViewBag.Title = "EResources Usage Statistics";
+	ViewBag.Breadcrumb = "<a href=\"/\">Electronic Resources Home</a>";
+	ViewBag.ActiveNav = "eresNavStat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("_TopNav", (Object) ViewBag.ActiveNav)
+
+<div class="tab-pane" id="stats">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span12">
+				<div class="btn-toolbar">
+					<div class="btn-group">
+						<a id="addStatButton" class="btn"><i class="icon-plus"></i>&nbsp;Add Statistic</a>
+						<a id="editStatButton" class="btn"><i class="icon-edit"></i>&nbsp;Edit Statistic</a>
+					</div>
+					<div class="btn-group">
+						<button id="removeStatButton" class="btn"><i class="icon-remove"></i>&nbsp;Remove Statistic</button>
+					</div>
+				</div>
+				<div class="alert hide"></div>
+				
+				<table id="gridStats" class="table table-striped table-bordered">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Database</th>
+							<th>Year</th>
+							<th>Month</th>
+							<th>Searches</th>
+							<th>Downloads</th>
+							<th>CPU</th>
+							<th>Linked To</th>
+							<th>Linked From</th>
+							<th>CPLF</th>
+							<th>FT %</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+					<tfoot>
+						<tr>
+							<th>ID</th>
+							<th>Database</th>
+							<th>Year</th>
+							<th>Month</th>
+							<th>Searches</th>
+							<th>Downloads</th>
+							<th>CPU</th>
+							<th>Linked To</th>
+							<th>Linked From</th>
+							<th>CPLF</th>
+							<th>FT %</th>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modalStatDetails" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="modalStatDetails" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3>Statistics Details</h3>
+	</div>
+	<div class="modal-body">
+		@model Dashboard.ViewModels.EResStatViewModel
+		@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "formStatDetails", @class = "form-horizontal" }))
+		{
+			@Html.AntiForgeryToken() 
+			@Html.ValidationSummary(true)
+			@Html.Hidden("inputMode")
+
+			<div class="control-group">
+				<label class="control-label" for="inputDbName">Database Name</label>
+				<div class="controls">
+					@Html.HiddenFor(r => r.StatID)
+					@Html.DropDownListFor(r => r.DatabaseID, (IEnumerable<SelectListItem>)@ViewBag.Databases, new { @class = "required" })
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputStatYear">Year</label>
+				<div class="controls">
+					@Html.DropDownListFor(r => r.Year, (IEnumerable<SelectListItem>) @ViewBag.Years, new { @class = "required" })
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputStatMonth">Month</label>
+				<div class="controls">
+					@Html.DropDownListFor(r => r.Month, (IEnumerable<SelectListItem>) @ViewBag.Months, new { @class = "required" })
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputStatSearches">Searches</label>
+				<div class="controls">
+					@Html.TextBoxFor(r => r.Searches, "", new { placeholder = "# of Searches", @class = "required" })
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputStatDownloads">Downloads</label>
+				<div class="controls">
+					@Html.TextBoxFor(r => r.Downloads, "", new { placeholder = "# of Downloads", @class = "required" })
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputLinkedTo"># Linked To</label>
+				<div class="controls">
+					@Html.TextBoxFor(r => r.LinkedTo, "", new { placeholder = "# Linked To...", @class = "required" })
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputLinkedFrom"># Linked From</label>
+				<div class="controls">
+					@Html.TextBoxFor(r => r.LinkedFrom, "", new { placeholder = "# Linked From...", @class = "required" })
+				</div>
+			</div>
+		}
+	</div>
+	<div class="modal-footer">
+		<a href="#" id="closeStatDlg" class="btn" aria-hidden="true">Close</a>
+		<a href="#" id="saveStatDlg" class="btn btn-primary">Save</a>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(function () {
+		var aaDataStat;
+		var modalStat = $('#modalStatDetails');
+		var oTableStat = $('#gridStats');
+
+		$('#formStatDetails').keypress(function (e) {
+			if (e.which == 13) {
+				saveStat();
+			}
+		});
+
+		var oTableStat = $('#gridStats').dataTable({
+			"bProcessing": true,
+			"bServerSide": true,
+			"sAjaxSource": '@Url.Content("~/EResources/GetStats")',
+			"aoColumns": [
+				{ "mData": "StatID" },
+				{ "mData": "DatabaseName" },
+				{ "mData": "Year" },
+				{ "mData": "Month" },
+				{ "mData": "Searches" },
+				{ "mData": "Downloads" },
+				{ "mData": "CostPerUse" },
+				{ "mData": "LinkedTo" },
+				{ "mData": "LinkedFrom" },
+				{ "mData": "CostPerLinkFrom" },
+				{ "mData": "Percentage" },
+			]
+		});
+
+		$("#gridStats tbody tr").live('click', function (event) {
+			selectStatItem(this);
+		});
+
+		$("#gridStats tbody tr").live('dblclick', function (event) {
+			selectStatItem(this);
+
+			editStat();
+		});
+
+		function selectStatItem(item) {
+			aaDataStat = oTableStat.fnGetData(item);
+
+			if ($(item).hasClass('info')) {
+				$(item).removeClass('info');
+			} else {
+				oTableStat.$('tr.info').removeClass('info');
+				$(item).addClass('info');
+			}
+		}
+
+		function resetStatModal() {
+			if ($('#formStatDetails') != null) {
+				var today = new Date();
+
+				$('#StatID').val("");
+				$('#DatabaseID').val("");
+				$('#Year').val(today.getFullYear()).attr('selected', true);
+				$('#Month').val(today.getMonth() + 1).attr('selected', true);
+				$('#Searches').val("");
+				$('#Downloads').val("");
+				$('#LinkedTo').val("");
+				$('#LinkedFrom').val("");
+			}
+		}
+
+		function loadStatModal() {
+			if ($('#formStatDetails') != null) {
+				$('#StatID').val(aaDataStat.StatID);
+				$('#DatabaseID').val(aaDataStat.DatabaseID).attr('selected', true);
+				$('#Year').val(aaDataStat.Year).attr('selected', true);
+				$('#Month').val(aaDataStat.Month).attr('selected', true);
+				$('#Searches').val(aaDataStat.Searches);
+				$('#Downloads').val(aaDataStat.Downloads);
+				$('#LinkedTo').val(aaDataStat.LinkedTo);
+				$('#LinkedFrom').val(aaDataStat.LinkedFrom);
+			}
+		}
+
+		$('#closeStatDlg').click(function () {
+			modalStat.modal('hide');
+		});
+
+		$('#addStatButton').click(function () {
+			$('#inputMode').val("add");
+
+			modalStat.modal();
+		});
+
+		$('#editStatButton').click(function () {
+			editStat();
+		});
+
+		function editStat() {
+			$('#inputMode').val("edit");
+
+			if (aaDataStat != null) {
+				modalStat.modal();
+			} else {
+				alert("Please select a statistic from below.");
+			}
+		};
+
+		$('#removeStatButton').click(function () {
+			if (aaDataStat != null) {
+				var r = confirm("Are you sure you want to delete the selected statistic?");
+				if (r == true) {
+					$.ajax({
+						type: "POST",
+						url: '@Url.Content("~/EResources/DeleteStat/")' + aaDataStat.StatID,
+						success: function (data) {
+							if (data.Message == "success") {
+								oTableStat.fnDraw(false);
+								modalStat.modal('hide');
+							} else {
+								alert('Failed to delete statistic!');
+							}
+						}
+					});
+				}
+			} else {
+				alert("Please select a statistic from below.");
+			}
+		});
+
+		// BEGIN: Modal Events
+
+		modalStat.on('show', function () {
+			var mode = $('#inputMode').val();
+
+			if (mode == "add") {
+				resetStatModal();
+			} else {
+				loadStatModal();
+			}
+		});
+
+		modalStat.on('shown', function () {
+			$('#formStatDetails #DatabaseName').focus();
+		});
+
+		modalStat.on('hidden', function () {
+			resetStatModal();
+		});
+
+		$('#saveStatDlg').click(function () {
+			saveStat();
+		});
+
+		// END: Modal Events
+
+		function saveStat() {
+			var formData = $('#formStatDetails').serialize();
+			var mode = $('#inputMode').val();
+			var urlPath = "";
+
+			$('#form-formStatDetails').validate({
+				errorElement: 'span',
+				errorClass: 'help-inline',
+				highlight: function (element, errorClass) {
+					$(element).parent().parent().addClass('error');
+				},
+				unhighlight: function (element, errorClass) {
+					$(element).parent().parent().removeClass('error');
+				}
+			});
+
+			if ($('#formStatDetails').valid()) {
+				if (mode == "add") {
+					urlPath = '@Url.Content("~/EResources/CreateStat")';
+				} else {
+					urlPath = '@Url.Content("~/EResources/UpdateStat")';
+				}
+
+				$.ajax({
+					type: "POST",
+					url: urlPath,
+					data: formData,
+					success: function (data) {
+						if (data.Message == "success") {
+							oTableStat.fnDraw(false);
+							modalStat.modal('hide');
+						} else {
+							alert('failed');
+						}
+					}
+				});
+			}
+		};
+	});
+</script>

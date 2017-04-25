@@ -1,0 +1,409 @@
+﻿@{
+    ViewBag.Title = "TS Statistics Entry";
+    Layout = "~/Views/Tickler/_Tickler.cshtml";
+}
+
+<h2 style="margin: 20px;">Technical Services Statistics Entry</h2>
+
+<div class="">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#home" data-toggle="tab">Stats Input</a></li>
+        <li class=""><a href="#admin" data-toggle="tab">Stats Admin</a></li>
+    </ul>
+
+    <div class="tab-content well">
+        <div class="tab-pane active" id="home">
+            <form id="Tickler" name="Tickler" class="form-horizontal">
+                <div id="message" class="alert alert-success hide">
+                    <button class="close" data-dismiss="alert">×</button>
+                </div>
+
+                <div id="error" class="alert alert-error hide">
+                    <button class="close" data-dismiss="alert">×</button>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="UserID">Username/ID:</label>
+                    <div class="controls">
+                        @Html.Hidden("UserID")
+                        @Html.Hidden("RoleID")
+                        @Html.TextBox("FullName", "", new { @readonly = "readonly" })
+                        @Html.TextBox("Username", "", new { placeholder = "Enter university ID here..." })
+                        <a id="btnLookupUser" class="btn">Lookup User</a>
+                    </div>
+                </div>
+
+                <div id="dataEntry">
+                    <div class="control-group" id="row_dates">
+                        <label class="control-label" for="Months">Month/Year:</label>
+                        <div class="controls">
+                            @Html.DropDownList("Months", (IEnumerable<SelectListItem>) @ViewBag.Months)
+                            @Html.DropDownList("Years", (IEnumerable<SelectListItem>) @ViewBag.Years)
+                            <a id="btnToday" class="btn">Today</a>
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="row_activities">
+                        <label class="control-label" for="Activities">Activity Type:</label>
+                        <div class="controls">
+                            @Html.DropDownList("Activities", null, new { @class = "required" })
+                            <span class="label label-important">Required</span>
+                            <span class="label label-info">Defaultable</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="row_sublibraries1">
+                        <label class="control-label" for="SubLibraries1">Sublibrary 1:</label>
+                        <div class="controls">
+                            @Html.DropDownList("SubLibraries1")
+                            <span class="label label-important">Required</span>
+                            <span class="label label-info">Defaultable</span>
+                        </div>
+                    </div>
+    
+                    <div class="control-group hide" id="row_sublibraries2">
+                        <label class="control-label" for="SubLibraries2">Sublibrary 2:</label>
+                        <div class="controls">
+                            @Html.DropDownList("SubLibraries2", (IEnumerable<SelectListItem>)@ViewBag.SubLibraries2)
+                            <span id="sublibraries_info" class="label label-important">Required</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="row_title_count">
+                        <label class="control-label" for="TitleCount">Title Count:</label>
+                        <div class="controls">
+                            <input type="text" id="TitleCount" name="TitleCount" class="required" placeholder="Type something…" />
+                            <span id="title_count_minimum" class="label label-important">Required</span>
+                        </div>
+                    </div>
+    
+                    <div class="control-group" id="row_volume_count">
+                        <label class="control-label" for="VolumeCount">Volume Count:</label>
+                        <div class="controls">
+                            <input type="text" id="VolumeCount" name="VolumeCount" class="required" placeholder="Type something…" />
+                            <span id="volume_count_minimum" class="label label-important">Required</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="row_title_year">
+                        <label class="control-label" for="TitleYear">Title Year:</label>
+                        <div class="controls">
+                            <input type="text" id="TitleYear" name="TitleYear" placeholder="Withdraws only" />
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="row_save_defaults">
+                        <div class="controls">
+                            <label class="checkbox">
+                                @Html.CheckBox("SaveDefaults", false, new { id = "SaveDefaults" }) Save selected values as default
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="submit" type="submit" class="btn btn-primary">Save changes</button>
+                        <button id="reset" type="reset" class="btn">Reset</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="tab-pane" id="admin">
+            <h4><a href="@Url.Content("~/uploads/client_setup.exe")">Desktop Client Install</a></h4>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var viewModel = ({
+        UserID: null,
+        RoleID: null,
+        FirstName: null,
+        LastName: null,
+        FullName: null,
+        Username: null,
+        Activities: null,
+        SubLibraries1: null,
+        TitleYear: null,
+
+        init: function (userId, roleId, firstName, lastName, userName, activities, subLibraries1) {
+            this.UserID = userId;
+            this.RoleID = roleId;
+            this.FirstName = firstName;
+            this.LastName = lastName;
+            this.FullName = firstName + " " + lastName;
+            this.Username = userName;
+            this.Activities = activities;
+            this.SubLibraries1 = subLibraries1;
+            //this.TitleYear = titleYear;
+
+            // Save the cookies
+            this.saveCookies();
+        },
+
+        update: function (model) {
+            this.UserID(model.id);
+            this.RoleID(model.RoleID);
+            this.FirstName(model.FirstName);
+            this.LastName(model.LastName);
+            this.Username(model.Username);
+        },
+
+        fillCookies: function () {
+            this.UserID = $.cookie("UserID");
+            this.RoleID = $.cookie("RoleID");
+            this.FullName = $.cookie("FullName");
+            this.Username = $.cookie("Username");
+            this.Activities = $.cookie("Activities");
+            this.SubLibraries1 = $.cookie("SubLibraries1");
+        },
+
+        saveCookies: function () {
+            $.cookie("UserID", this.UserID, { expires: 365 });
+            $.cookie("RoleID", this.RoleID, { expires: 365 });
+            $.cookie("FullName", this.FullName, { expires: 365 });
+            $.cookie("Username", this.Username, { expires: 365 });
+            $.cookie("Activities", this.Activities, { expires: 365 });
+            $.cookie("SubLibraries1", this.SubLibraries1, { expires: 365 });
+        },
+
+        resetUser: function () {
+            this.UserID = ''; $.cookie("UserID", null);
+            this.RoleID = ''; $.cookie("RoleID", null);
+            this.FullName = ''; $.cookie("FullName", null);
+            this.Username = ''; $.cookie("Username", null);
+        },
+
+        resetDefaults: function () {
+            this.Activities = ''; $.cookie("Activities", null);
+            this.SubLibraries1 = ''; $.cookie("SubLibraries1", null);
+        }
+    });
+
+    // Form load
+    var today = function () {
+        var now = new Date();
+
+        $('#Months').prop('selectedIndex', now.getMonth());
+        $('#Years').val(now.getFullYear());
+    }
+
+    var reset_form = function () {
+        viewModel.resetDefaults();
+        viewModel.resetUser();
+
+        page_load();
+    }
+
+    var clear_inputs = function () {
+        $('#VolumeCount').val('');
+        $('#TitleCount').val('').focus();
+    }
+
+    var next_edit = function () {
+        window.history.pushState('string', 'Title', '@Url.Content("~/App/Tickler")');
+
+        clear_inputs();
+    }
+
+    var manage_controls = function (model) {
+        if ((model.SubLibrary1 == false) || (model.SubLibrary1 == -1)) {
+            $('#row_sublibraries1').fadeOut(500);
+            LibraryUtil.controlOption('SubLibraries1', true);
+        } else {
+            $('#row_sublibraries1').fadeIn(500);
+            LibraryUtil.controlOption('SubLibraries1', false);
+        }
+
+        if ((model.SubLibrary2 == false) || (model.SubLibrary2 == -1)) {
+            $('#row_sublibraries2').fadeOut(500);
+            LibraryUtil.controlOption('SubLibraries2', true);
+        } else {
+            $('#row_sublibraries2').fadeIn(500);
+            LibraryUtil.controlOption('SubLibraries2', false);
+        }
+
+        if (model.TitleCountMinimum < 0) {
+            $('#row_title_count').fadeOut(500);
+        } else {
+            $('#row_title_count').fadeIn(500);
+            $('#title_count_minimum').text("Value must be greater than or equal to " +
+                model.TitleCountMinimum).fadeIn(500);
+        }
+
+        if (model.VolumeCountMinimum < 0) {
+            $('#row_volume_count').fadeOut(500);
+        } else {
+            $('#row_volume_count').fadeIn(500);
+            $('#volume_count_minimum').text("Value must be greater than or equal to " +
+                model.VolumeCountMinimum).fadeIn(500);
+        }
+    }
+
+    function get_activity(value) {
+        if (value != "") {
+            var url = '@Url.Content("~/Tickler/GetTicklerActivity/")' + value;
+            $.getJSON(url, function (data) {
+                manage_controls(data.model[0]);
+            });
+        }
+    };
+
+    /**
+     * Handle page load
+     */
+    var page_load = function () {
+        viewModel.fillCookies();
+
+        // Pre-populate the form if cookies present
+        $('#UserID').val(viewModel.UserID);
+        $('#RoleID').val(viewModel.RoleID);
+        $('#FullName').val(viewModel.FullName);
+        $('#Username').val(viewModel.Username);
+
+        if (viewModel.UserID != null) {
+            $('#dataEntry').fadeIn(250);
+            $('#Activities').focus();
+        } else {
+            $('#dataEntry').fadeOut(0);
+            $('#Username').focus();
+        }
+
+        today();
+
+        if (viewModel.RoleID > 1) {
+        	LibraryUtil.controlOption('Months', false);
+        	LibraryUtil.controlOption('Years', false);
+        	LibraryUtil.controlOption('SubLibraries2', false);
+        } else {
+            LibraryUtil.controlOption('Months', true);
+            LibraryUtil.controlOption('Years', true);
+            LibraryUtil.controlOption('SubLibraries2', true);
+        }
+
+        $('#Activities').prop('selectedIndex', viewModel.Activities);
+        $('#SubLibraries1').prop('selectedIndex', viewModel.SubLibraries1);
+
+        viewModel.saveCookies();
+
+        var model = get_activity($('#Activities').val());
+        if (model != null) {
+            manage_controls(model);
+        }
+    }
+
+    $(document).ready(function () {
+        // Load the page
+        page_load();
+
+        /**
+         * Handle the user lookup
+         */
+        $('#btnLookupUser').click(function () {
+            var userName = $('#Username').val();
+            if (userName.length > 0) {
+                var url = '@Url.Content("~/Tickler/UserByUniversityID/")' + userName
+                $.getJSON(url, function (data) {
+                    var model = data.model[0];
+                    var fullName = model.FirstName + " " + model.LastName;
+
+                    // Save user info to cookies
+                    $.cookie("UserID", model.id, { expires: 365 });
+                    $.cookie("RoleID", model.RoleID, { expires: 365 });
+                    $.cookie("FullName", fullName, { expires: 365 });
+                    $.cookie("Username", model.Username, { expires: 365 });
+
+                    // Say "HI"
+                    LibraryUtil.showMessage($('#message'), "Welcome " + fullName + "!");
+
+                    // New user, delete existing cookies
+                    viewModel.fillCookies();
+
+                    // Finish loading the page
+                    page_load();
+                });
+            } else {
+                alert("Please enter a university ID in the field provided.");
+
+                page_load();
+            }
+        });
+
+        /**
+         * Handle the Today button
+         */
+        $('#btnToday').click(function () {
+            today();
+        });
+
+        /**
+         * Handle the Activities dropdown
+         */
+        $('#Activities').change(function () {
+            if ($('#Activities').val() == 0) {
+                reset_form();
+            } else {
+                var value = $('#Activities').val();
+                if (value != null || value != '') {
+                    get_activity(value);
+                }
+            }
+        });
+
+        /**
+         * Form validation
+         */
+        $("#Tickler").validate({
+            rules: {
+                name: "required",
+                Activities: { required: true }
+            }
+        });
+
+        /**
+         * Form reset
+         */
+        $("#Tickler").bind("reset", function () {
+            var resp = confirm("Are you sure you want to reset the form?");
+            if (resp == false) {
+                return false;
+            } else {
+                reset_form();
+                $('#Username').focus();
+            }
+        });
+
+        /**
+         * Form submit
+         */
+        $('#Tickler').submit(function () {
+            if ($('#Tickler').valid()) {
+                var data = $(this).serialize();
+                var urlPath = '@Url.Content("~/Tickler/Create/")';
+                $.ajax({
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    url: urlPath,
+                    success: function (data) {
+                        LibraryUtil.showMessage($('#message'), "Successfully saved tickler entry.");
+
+                        // Check to see if the user wants to save these values
+                        if ($('#SaveDefaults').prop('checked')) {
+                            viewModel.Activities = $('#Activities').prop('selectedIndex');
+                            viewModel.SubLibraries1 = $('#SubLibraries1').prop('selectedIndex');
+
+                            viewModel.saveCookies();
+                        }
+
+                        // Reset the form to allow another entry
+                        next_edit();
+                    },
+                    error: function (data) {
+                        LibraryUtil.showMessage($('#error'), "Failed to save tickler entry.");
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>

@@ -1,0 +1,33 @@
+﻿@Html.Hidden("navSelected", (Object) ViewBag.ActiveNav)
+
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="navbar">
+			<div class="navbar-inner">
+				<a class="brand" href="#">@ViewBag.Title</a>
+				<ul class="nav">
+					<li id="eresNavHome">
+						@Html.ActionLink("Overview", "Index")
+					</li>
+					<li id="eresNavStat">
+						@Html.ActionLink("Entries", "Statistics")
+					</li>
+					<li id="eresNavDatabase">
+						@Html.ActionLink("Databases", "Databases")
+					</li>
+					<li id="eresNavVendor">
+						@Html.ActionLink("Vendors", "Vendors")
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(function () {
+		var element = $('#navSelected').val();
+
+		$('#' + element).addClass("active");
+	});
+</script>

@@ -1,0 +1,207 @@
+﻿@{
+    ViewBag.Title = "EResources Databases";
+    ViewBag.Breadcrumb = "<a href=\"/\">Electronic Resources Home</a>";
+	ViewBag.ActiveNav = "eresNavDatabase";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("_TopNav", (Object) ViewBag.ActiveNav)
+
+<div class="tab-pane" id="databases">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span12">
+				<div class="btn-toolbar">
+					<div class="btn-group">
+						<a id="AddButton" 
+                           class="btn" 
+                           data-remote="~/EResources/AddDatabase"><i class="icon-plus"></i>&nbsp;Add Database</a>
+						
+                        <a id="EditButton" 
+                           class="btn" 
+                           data-remote="~/EResources/EditDatabase"><i class="icon-edit"></i>&nbsp;Edit Database</a>
+                        
+                        @Html.ActionLink("Set Database Costs", "Cost", null, new { @class = "btn", @id = "ButtonSetCost" })
+					</div>
+					<div class="btn-group">
+						<button id="RemoveButton" class="btn"><i class="icon-remove"></i>&nbsp;Remove Database</button>
+					</div>
+				</div>
+				<div class="alert hide"></div>
+				<table id="gridDatabases" class="table table-striped table-bordered">
+					<thead>
+						<tr>
+							<th style="width: 10%">ID</th>
+							<th style="width: 40%">Database Name</th>
+							<th style="width: 10%">Type</th>
+							<th style="width: 10%">Cost</th>
+							<th style="width: 10%">Funding Source</th>
+							<th style="width: 20%">Vendor</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+					<tfoot>
+						<tr>
+							<th style="width: 10%">ID</th>
+							<th style="width: 40%">Database Name</th>
+							<th style="width: 10%">Type</th>
+							<th style="width: 10%">Cost</th>
+							<th style="width: 10%">Funding Source</th>
+							<th style="width: 20%">Vendor</th>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- These are placeholders for the modal dialogs this page uses -->
+<div    id="modalDbDetails" 
+        class="modal hide" 
+        tabindex="-1" 
+        role="dialog" 
+        aria-labelledby="modalDbDetails" 
+        aria-hidden="true" 
+        data-url='@Url.Action("Database", "EResources")'>
+    
+    <div id="modalDbDetailsId"></div> 
+</div> <!-- // modalDbDetails -->
+
+<div    id="modalDbCost" 
+        class="modal hide" 
+        tabindex="-1" 
+        role="dialog" 
+        aria-labelledby="modalDatabaseCost" 
+        aria-hidden="true" 
+        data-url='@Url.Action("Cost", "EResources")'>
+
+    <div id="modalDbCostId"></div> 
+</div> <!-- // modalDbCost -->
+
+<script type="text/javascript">
+    $(function () {
+        /* =======================================================================
+         * Page variables
+         */
+        var aaDataDb = null;
+        var modalDb = $('#modalDbDetails');
+        var modalCost = $('#modalDbCost');
+
+        /* =======================================================================
+         * Datatable Setup
+         */
+		var oTableDb = $('#gridDatabases').dataTable({
+			"bProcessing": true,
+			"bServerSide": true,
+			"sAjaxSource": '@Url.Content("~/EResources/GetDatabases")',
+			"aoColumns": [
+				{ "mData": "DatabaseID" },
+				{ "mData": "DatabaseName" },
+				{ "mData": "DatabaseTypeName" },
+				{ "mData": "DatabaseCostString" },
+				{ "mData": "FundingSourceName" },
+				{ "mData": "VendorName" },
+				{ "mData": "DatabaseType", "bVisible": false },
+				{ "mData": "DatabaseCost", "bVisible": false },
+				{ "mData": "FundingSource", "bVisible": false },
+				{ "mData": "VendorID", "bVisible": false }
+			]
+		});
+
+        /* =======================================================================
+         * Datatable Events
+         */
+		$("#gridDatabases tbody tr").live('click', function (event) {
+			selectDbItem(this);
+		});
+
+		$("#gridDatabases tbody tr").live('dblclick', function (event) {
+            // Select the database
+		    selectDbItem(this);
+
+            // Open the database modal dialog
+			editDatabase();
+		});
+
+        /* =======================================================================
+         * Button event handlers
+         */
+		$('#AddButton').click(function () {
+			$('#inputMode').val("add");
+
+			showModal('#modalDbDetails', '#modalDbDetailsId', 1);
+		});
+
+		$('#EditButton').click(function () {
+		    $('#inputMode').val("edit");
+
+			editDatabase();
+		});
+
+		$('#RemoveButton').click(function () {
+		    deleteDatabase();
+		});
+
+        /* =======================================================================
+         * Methods that are called by event handlers
+         */
+		function showModal(modalContainerId, modalBodyId, id) {
+		    var url = $(modalContainerId).data('url');
+
+		    $.get(url, { id: id }, function (data) {
+		        $(modalBodyId).html(data);
+		        $(modalContainerId).modal('show');
+		    });
+		}
+
+		function selectDbItem(item) {
+		    aaDataDb = oTableDb.fnGetData(item);
+
+		    if ($(item).hasClass('info')) {
+		        $(item).removeClass('info');
+		    } else {
+		        oTableDb.$('tr.info').removeClass('info');
+		        $(item).addClass('info');
+		    }
+		}
+
+		function editDatabase() {
+			$('#inputMode').val("edit");
+
+			if (aaDataDb != null) {
+			    showModal('#modalDbDetails', '#modalDbDetailsId', 1);
+
+			    //oTableDb.fnDraw(false);
+			    //modalDb.modal('hide');
+			    //resetDbDropDownList(data);
+			} else {
+				alert("Please select a database entry from below.");
+			}
+		}
+
+		function deleteDatabase() {
+			if (aaDataDb != null) {
+				var r = confirm("Are you sure you want to delete the selected database?");
+				if (r == true) {
+					$.ajax({
+						type: "POST",
+						url: '@Url.Content("~/EResources/DeleteDatabase/")' + aaDataDb.DatabaseID,
+						success: function (data) {
+							if (data.Message == "success") {
+								// Reload the Vendors Table
+								oTableDb.fnDraw(false);
+								modalDb.modal('hide');
+								resetDbDropDownList(data);
+							} else {
+								alert('failed');
+							}
+						}
+					});
+				}
+			} else {
+				alert("Please select a database entry from below.");
+			}
+		}
+	});
+</script>

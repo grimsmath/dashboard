@@ -1,0 +1,47 @@
+﻿@model Dashboard.Models.LoginModel
+
+@{
+	ViewBag.Title = "Logon";
+	Layout = "~/Views/Account/_Account.cshtml";
+}
+
+@using (Html.BeginForm(null, null, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal" }))
+{
+	@Html.AntiForgeryToken()
+	@Html.ValidationSummary(true)
+	<div class="modal">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h3>Dashboard Login</h3>
+		</div>
+		<div class="modal-body">
+			<div class="control-group">
+				<div class="control-group">
+					@Html.LabelFor(r => r.UserName, "Username", new { @class = "control-label" })
+					<div class="controls">
+						@Html.TextBoxFor(r => r.UserName)
+						@Html.ValidationMessageFor(m => m.UserName)
+					</div>
+				</div>
+				<div class="control-group">
+					@Html.LabelFor(r => r.Password, "Password", new { @class = "control-label" })
+					<div class="controls">
+						@Html.PasswordFor(r => r.Password)
+						@Html.ValidationMessageFor(m => m.Password)
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="controls">
+						<label class="checkbox">
+							@Html.CheckBoxFor(m => m.RememberMe, new { @class = "checkbox" })&nbsp;Remember Me
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#" class="btn">Cancel</a>
+			<input type="submit" value="Log in" class="btn btn-primary" />
+		</div>
+	</div>
+}
